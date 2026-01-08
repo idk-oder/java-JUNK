@@ -4,7 +4,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class SimpleGoldBot {
-
+    // Custom values for calculation
+    private static final double CUSTOM_USD_TO_INR = 83.50; // Current approx rate
+    private static final double GRAMS_IN_OUNCE = 31.1035;
     public static void main(String[] args) {
         try {
             // 1. define the API URL (Using Twelve Data for XAU/USD)
@@ -40,13 +42,24 @@ public class SimpleGoldBot {
                 int endIndex = jsonResponse.indexOf("\"", startIndex);
                 String price = jsonResponse.substring(startIndex, endIndex);
 
-                // 5. Display the result
-                System.out.println("-------------------------");
-                System.out.println("GOLD PRICE (XAU/USD): $" + price);
-                System.out.println("-------------------------");
-            } else {
-                System.out.println("Could not find price in response: " + jsonResponse);
-            }
+                // 1. Get the price from your fetch method
+            String priceString = fetchPrice("XAU/USD");
+            double priceInUSD = Double.parseDouble(priceString);
+
+    // 2. Custom Calculation for 10 grams in Rupees
+    // (USD Price / 31.1035) = Price per 1 gram USD
+    // (Price per gram * 10) = Price per 10 grams USD
+    // (Price per 10g * exchange rate) = Price in INR
+            double priceInINR = (priceInUSD / GRAMS_IN_OUNCE) * 10 * CUSTOM_USD_TO_INR;
+
+    // 3. Print the result
+            System.out.println("Live Gold Price (USD): $" + priceInUSD);
+            System.out.println("Using Custom Exchange Rate: ₹" + CUSTOM_USD_TO_INR);
+            System.out.println("------------------------------------");
+            System.out.printf("GOLD PRICE IN INDIA: ₹%.2f per 10g%n", priceInINR);
+                    } else {
+                        System.out.println("Could not find price in response: " + jsonResponse);
+                    }    
 
         } catch (Exception e) {
             e.printStackTrace();
